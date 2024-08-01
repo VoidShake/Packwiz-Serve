@@ -8,14 +8,18 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os:
+          - name: ubuntu-latest
+            docker: alpine
+          - name: windows-latest
+            docker: windows
+    runs-on: ${{ matrix.os.name }}
     permissions:
       contents: read
       packages: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -28,6 +32,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.GITHUB_REPO }}
+          flavor: |
+            suffix=${{ matrix.os.docker }}
           tags: |
             type=raw,value=latest
             type=raw,value=stable,enable=${{ github.event_name == 'release' }}
@@ -37,7 +43,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          file: Dockerfile.${{ matrix.os.docker }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

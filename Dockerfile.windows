@@ -1,0 +1,14 @@
+# Copied from https://github.com/mbentley/docker-windows-containers-examples/blob/master/nginx/Dockerfile
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+
+RUN mkdir c:\build\nginx\source &&\
+  powershell -Command "wget -uri 'http://nginx.org/download/nginx-1.27.0.zip' -OutFile 'C:/nginx.zip'" &&\
+  powershell -Command "Expand-Archive -Path C:/nginx.zip -DestinationPath C:/nginx -Force" &&\
+  del c:\nginx.zip
+
+# Copy config file
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+WORKDIR /nginx/nginx
+EXPOSE 80
+ENTRYPOINT ["nginx.exe"]
