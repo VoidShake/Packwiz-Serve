@@ -45,7 +45,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           image: ${{ env.GITHUB_REPO }}
           dockerfile: Dockerfile.${{ matrix.os.docker }}
-          labels: ${{ join(fromJson(steps.meta.outputs.json.labels), ',') }}
-          tags: ${{ join(fromJson(steps.meta.outputs.json.tags), ',') }}
+          labels: ${{ join(fromJson(steps.meta.outputs.json).labels, ',') }}
+          tags: ${{ join(fromJson(steps.meta.outputs.json).tags, ',') }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
