@@ -24,7 +24,7 @@ jobs:
       - id: repo
         uses: ASzc/change-string-case-action@v6
         with:
-          string: ${{ github.repository }}
+          string: ${{ github.event.repository.name }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -43,7 +43,7 @@ jobs:
         uses: mr-smithers-excellent/docker-build-push@v6
         with:
           registry: ${{ env.REGISTRY }}
-          image: ${{ steps.repo.outputs.lowercase }}
+          image: /${{ steps.repo.outputs.lowercase }}
           dockerfile: Dockerfile.${{ matrix.os.docker }}
           labels: ${{ join(fromJson(steps.meta.outputs.json).labels, ',') }}
           tags: ${{ join(fromJson(steps.meta.outputs.json).tags, ',') }}
