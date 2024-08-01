@@ -20,6 +20,8 @@ jobs:
       contents: read
       packages: write
     steps:
+      - uses: actions/checkout@v4
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -31,9 +33,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.GITHUB_REPO }}
+          images: ""
           flavor: |
-            suffix=${{ matrix.os.docker }}
+            suffix=-${{ matrix.os.docker }}
           tags: |
             type=raw,value=latest
             type=raw,value=stable,enable=${{ github.event_name == 'release' }}
@@ -41,9 +43,10 @@ jobs:
             type=sha,priority=250,enable=${{ github.event_name == 'workflow_dispatch' }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: mr-smithers-excellent/docker-build-push@v6
         with:
-          file: Dockerfile.${{ matrix.os.docker }}
-          push: true
+          registry: ${{ env.REGISTRY }}
+          image: ${{ env.GITHUB_REPO }}
+          dockerfile: Dockerfile.${{ matrix.os.docker }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
