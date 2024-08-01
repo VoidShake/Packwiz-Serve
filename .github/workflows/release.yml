@@ -4,7 +4,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  GITHUB_REPO: ${{ github.repository }}
 
 jobs:
   build:
@@ -22,9 +21,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: lowercase repository
-        run: |
-          echo "GITHUB_REPO=${GITHUB_REPO,,}" >>${GITHUB_ENV}
+      - id: repo
+        uses: ASzc/change-string-case-action@v6
+        with:
+          string: ${{ github.repository }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -43,7 +43,7 @@ jobs:
         uses: mr-smithers-excellent/docker-build-push@v6
         with:
           registry: ${{ env.REGISTRY }}
-          image: ${{ env.GITHUB_REPO }}
+          image: ${{ steps.repo.outputs.lowercase }}
           dockerfile: Dockerfile.${{ matrix.os.docker }}
           labels: ${{ join(fromJson(steps.meta.outputs.json).labels, ',') }}
           tags: ${{ join(fromJson(steps.meta.outputs.json).tags, ',') }}
